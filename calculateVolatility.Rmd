@@ -1,0 +1,63 @@
+---
+title: "Calculate Volatility of TNP"
+author: "Joe Stoffa"
+date: "July 19, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+###Get Data for TNP
+``` {r download data}
+library(tseries)
+TNPdata <- get.hist.quote("TNP", quote = "Close")
+```
+
+###Calculate Log Returns
+
+The following R code calulates the log returns log(F~t~/F~t-1~).  _The lag function takes a value in the timeseries at time i and replaces it with the value at time i+1._
+
+``` {r calculate log returns}
+TNPret <- log(lag(TNPdata)) - log(TNPdata)
+```
+
+###Calculate Volatility Measure
+
+Volatility is calculated by taking the standard deviation of the mean of log returns and multiplying it by 100 times the square root of the number of market days.  SD(returns) * (number of trading days)$^{1/2}$ * 100.
+
+```{r calculate volatility measure}
+TNPvol <- sd(TNPret) * sqrt(250) * 100
+TNPvol
+```
+
+###Calculate the Volatility for the Lengths of the Series 
+
+The following R code defines a function _vol_ that takes two parameters the decay factor _d_ and a time series of log returns _logrets_.  By passing _TNPret_ and decay factors of 10, 30, and 100, we can then plot volatilities for each.  Individual volatilities are distinguished by black, red, and blue lines for decay factors of 10, 30, and 100 respectfully.
+
+```{r define Vol Function, echo = TRUE}
+Vol <- function(d, logrets) {
+  var = 0
+  lam = 0
+  varlist <- c()
+  for( r in logrets) {
+    lam = lam*(1-1/d) + 1
+    var = (1 - 1/lam)*var + (1/lam)*r^2
+    varlist <- c(varlist, var)
+  }
+  sqrt(varlist)
+}
+
+volest10 <- Vol(10, TNPret)
+volest30 <- Vol(30, TNPret)
+volest100 <- Vol(100, TNPret)
+
+plot(volest10, type = "l", ylab = "Volatility", main = "TNP Volatility Plot")
+lines(volest30, type = "l", col= "red")
+lines(volest100, type = "l", col = "blue")
+legend(3100, 0.224, c(10, 30, 100), lty=c(1,1), lwd=c(2.5,2.5,2.5), col = c("black", "red", "blue"), title = "Decay")
+```
+
+
+
