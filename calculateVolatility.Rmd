@@ -36,7 +36,7 @@ TNPvol
 
 The following R code defines a function _vol_ that takes two parameters the decay factor _d_ and a time series of log returns _logrets_.  By passing _TNPret_ and decay factors of 10, 30, and 100, we can then plot volatilities for each.  Individual volatilities are distinguished by black, red, and blue lines for decay factors of 10, 30, and 100 respectfully.
 
-```{r define Vol Function, echo = TRUE}
+```{r define Vol Function, fig.show = 'hide'}
 Vol <- function(d, logrets) {
   var = 0
   lam = 0
@@ -52,12 +52,14 @@ Vol <- function(d, logrets) {
 volest10 <- Vol(10, TNPret)
 volest30 <- Vol(30, TNPret)
 volest100 <- Vol(100, TNPret)
-
+png("volplot.png")
 plot(volest10, type = "l", ylab = "Volatility", main = "TNP Volatility Plot")
 lines(volest30, type = "l", col= "red")
 lines(volest100, type = "l", col = "blue")
-legend(3100, 0.224, c(10, 30, 100), lty=c(1,1), lwd=c(2.5,2.5,2.5), col = c("black", "red", "blue"), title = "Decay")
+legend(3000, 0.22, c(10, 30, 100), lty=c(1,1), lwd=c(2.5,2.5,2.5), col = c("black", "red", "blue"), title = "Decay")
+dev.off()
 ```
 
+![.png included so plot is visible on github](volplot.png)
 
 
